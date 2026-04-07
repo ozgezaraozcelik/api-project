@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using PersonnelTrainingAPI.Data;
 using PersonnelTrainingAPI.Models;
+using PersonnelTrainingAPI.Services;
 
 namespace PersonnelTrainingAPI.Controllers
 {
@@ -8,66 +8,65 @@ namespace PersonnelTrainingAPI.Controllers
     [Route("api/[controller]")]
     public class PersonnelController : ControllerBase
     {
+        private readonly IPersonnelService _personnelService;
+
+        public PersonnelController(IPersonnelService personnelService)
+        {
+            _personnelService = personnelService;
+        }
+
         /// <summary>
         /// Listedeki tüm personelleri döner.
         /// </summary>
         /// <returns>Tüm personellerin listesi.</returns>
         [HttpGet("all")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
-            return Ok(DataStore.Personnels);
+            var result = await _personnelService.GetAllAsync(cancellationToken);
+            return Ok(result);
         }
 
         /// <summary>
         /// Verilen ID'ye göre personeli döner.
         /// </summary>
         /// <param name="id">Personel ID.</param>
+        /// <param name="cancellationToken">İsteğin iptal token'ı.</param>
         /// <returns>Personel kaydı.</returns>
         [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
         {
-            var personnel = DataStore.Personnels.FirstOrDefault(p => p.Id == id);
-            if (personnel is null)
-                return NotFound();
+            var result = await _personnelService.GetByIdAsync(id, cancellationToken);
+            if (!result.IsSuccess)
+                return NotFound(result);
 
-            return Ok(personnel);
+            return Ok(result);
         }
 
         /// <summary>
         /// Yeni personel kaydı oluşturur. ID otomatik olarak (Mevcut Max Id + 1) atanır.
         /// </summary>
         /// <param name="request">Eklenecek personel bilgileri.</param>
+        /// <param name="cancellationToken">İsteğin iptal token'ı.</param>
         /// <returns>Oluşturulan personel kaydı.</returns>
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Register([FromBody] Personnel request)
+        public async Task<IActionResult> Register([FromBody] Personnel request, CancellationToken cancellationToken)
         {
             if (request is null)
-                return BadRequest("Request body is required.");
+                return BadRequest(ServiceResponse<Personnel>.Fail("Request body is required."));
 
             if (!ModelState.IsValid)
                 return ValidationProblem(ModelState);
 
-            var nextId = DataStore.Personnels.Count == 0 ? 1 : DataStore.Personnels.Max(p => p.Id) + 1;
+            var result = await _personnelService.RegisterAsync(request, cancellationToken);
+            if (!result.IsSuccess)
+                return BadRequest(result);
 
-            var newPersonnel = new Personnel
-            {
-                Id = nextId,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Department = request.Department,
-                Email = request.Email,
-                IsTrainingCompleted = request.IsTrainingCompleted,
-                JoinDate = request.JoinDate == default ? DateTime.UtcNow : request.JoinDate
-            };
-
-            DataStore.Personnels.Add(newPersonnel);
-
-            return CreatedAtAction(nameof(GetById), new { id = newPersonnel.Id }, newPersonnel);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result);
         }
 
         /// <summary>
@@ -75,65 +74,62 @@ namespace PersonnelTrainingAPI.Controllers
         /// </summary>
         /// <param name="id">Güncellenecek personel ID.</param>
         /// <param name="request">Yeni personel bilgileri.</param>
+        /// <param name="cancellationToken">İsteğin iptal token'ı.</param>
         /// <returns>Güncellenmiş personel kaydı.</returns>
         [HttpPut("update/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Update(int id, [FromBody] Personnel request)
+        public async Task<IActionResult> Update(int id, [FromBody] Personnel request, CancellationToken cancellationToken)
         {
             if (request is null)
-                return BadRequest("Request body is required.");
+                return BadRequest(ServiceResponse<Personnel>.Fail("Request body is required."));
 
             if (!ModelState.IsValid)
                 return ValidationProblem(ModelState);
 
-            var existing = DataStore.Personnels.FirstOrDefault(p => p.Id == id);
-            if (existing is null)
-                return NotFound();
+            var result = await _personnelService.UpdateAsync(id, request, cancellationToken);
+            if (!result.IsSuccess)
+                return result.Message.Contains("not found", StringComparison.OrdinalIgnoreCase)
+                    ? NotFound(result)
+                    : BadRequest(result);
 
-            existing.FirstName = request.FirstName;
-            existing.LastName = request.LastName;
-            existing.Department = request.Department;
-            existing.Email = request.Email;
-            existing.IsTrainingCompleted = request.IsTrainingCompleted;
-            existing.JoinDate = request.JoinDate == default ? existing.JoinDate : request.JoinDate;
-
-            return Ok(existing);
+            return Ok(result);
         }
 
         /// <summary>
         /// Verilen ID'ye sahip personelin eğitim tamamlama durumunu kontrol eder.
         /// </summary>
         /// <param name="id">Personel ID.</param>
+        /// <param name="cancellationToken">İsteğin iptal token'ı.</param>
         /// <returns>Eğitim tamamlama durumu (true/false).</returns>
         [HttpGet("check-training/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult CheckTraining(int id)
+        public async Task<IActionResult> CheckTraining(int id, CancellationToken cancellationToken)
         {
-            var personnel = DataStore.Personnels.FirstOrDefault(p => p.Id == id);
-            if (personnel is null)
-                return NotFound();
+            var result = await _personnelService.CheckTrainingAsync(id, cancellationToken);
+            if (!result.IsSuccess)
+                return NotFound(result);
 
-            return Ok(personnel.IsTrainingCompleted);
+            return Ok(result);
         }
 
         /// <summary>
         /// Verilen ID'ye sahip personeli listeden siler.
         /// </summary>
         /// <param name="id">Silinecek personel ID.</param>
+        /// <param name="cancellationToken">İsteğin iptal token'ı.</param>
         /// <returns>İşlem başarılıysa 204 No Content.</returns>
         [HttpDelete("remove/{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Remove(int id)
+        public async Task<IActionResult> Remove(int id, CancellationToken cancellationToken)
         {
-            var personnel = DataStore.Personnels.FirstOrDefault(p => p.Id == id);
-            if (personnel is null)
-                return NotFound();
+            var result = await _personnelService.RemoveAsync(id, cancellationToken);
+            if (!result.IsSuccess)
+                return NotFound(result);
 
-            DataStore.Personnels.Remove(personnel);
             return NoContent();
         }
     }

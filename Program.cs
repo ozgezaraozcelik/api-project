@@ -1,4 +1,5 @@
 using System.Reflection;
+using PersonnelTrainingAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddSwaggerGen(options =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
 });
+
+builder.Services.AddSingleton<IPersonnelService, PersonnelService>();
 
 var app = builder.Build();
 
