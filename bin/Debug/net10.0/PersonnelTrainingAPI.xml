@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PersonnelTrainingAPI</name>
+    </assembly>
+    <members>
+        <member name="M:PersonnelTrainingApi.Controllers.TrainingsController.Get">
+            <summary>
+            Tüm eğitim programlarını listeler.
+            </summary>
+        </member>
+        <member name="M:PersonnelTrainingApi.Controllers.TrainingsController.Post">
+            <summary>
+            Yeni bir eğitim tanımlar.
+            </summary>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+    </members>
+</doc>
