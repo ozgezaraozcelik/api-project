@@ -1,0 +1,50 @@
+# Build results
+**/bin/
+**/obj/
+
+# .NET
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+
+# Visual Studio / Rider
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+.idea/
+
+# OS junk
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# NuGet
+**/packages/
+*.nupkg
+*.snupkg
+**/project.lock.json
+**/project.fragment.lock.json
+artifacts/
+
+# Publish outputs
+**/publish/
+
+# Test results
+TestResults/
+
+# ASP.NET / local secrets
+**/secrets.json
+**/appsettings.*.local.json
+
+# Cursor
+.cursor/
+
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
