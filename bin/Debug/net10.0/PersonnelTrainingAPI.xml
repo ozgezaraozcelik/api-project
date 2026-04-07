@@ -4,12 +4,54 @@
         <name>PersonnelTrainingAPI</name>
     </assembly>
     <members>
-        <member name="M:PersonnelTrainingApi.Controllers.TrainingsController.Get">
+        <member name="M:PersonnelTrainingAPI.Controllers.PersonnelController.GetAll">
+            <summary>
+            Listedeki tüm personelleri döner.
+            </summary>
+            <returns>Tüm personellerin listesi.</returns>
+        </member>
+        <member name="M:PersonnelTrainingAPI.Controllers.PersonnelController.GetById(System.Int32)">
+            <summary>
+            Verilen ID'ye göre personeli döner.
+            </summary>
+            <param name="id">Personel ID.</param>
+            <returns>Personel kaydı.</returns>
+        </member>
+        <member name="M:PersonnelTrainingAPI.Controllers.PersonnelController.Register(PersonnelTrainingAPI.Models.Personnel)">
+            <summary>
+            Yeni personel kaydı oluşturur. ID otomatik olarak (Mevcut Max Id + 1) atanır.
+            </summary>
+            <param name="request">Eklenecek personel bilgileri.</param>
+            <returns>Oluşturulan personel kaydı.</returns>
+        </member>
+        <member name="M:PersonnelTrainingAPI.Controllers.PersonnelController.Update(System.Int32,PersonnelTrainingAPI.Models.Personnel)">
+            <summary>
+            Verilen ID'ye sahip personelin bilgilerini günceller.
+            </summary>
+            <param name="id">Güncellenecek personel ID.</param>
+            <param name="request">Yeni personel bilgileri.</param>
+            <returns>Güncellenmiş personel kaydı.</returns>
+        </member>
+        <member name="M:PersonnelTrainingAPI.Controllers.PersonnelController.CheckTraining(System.Int32)">
+            <summary>
+            Verilen ID'ye sahip personelin eğitim tamamlama durumunu kontrol eder.
+            </summary>
+            <param name="id">Personel ID.</param>
+            <returns>Eğitim tamamlama durumu (true/false).</returns>
+        </member>
+        <member name="M:PersonnelTrainingAPI.Controllers.PersonnelController.Remove(System.Int32)">
+            <summary>
+            Verilen ID'ye sahip personeli listeden siler.
+            </summary>
+            <param name="id">Silinecek personel ID.</param>
+            <returns>İşlem başarılıysa 204 No Content.</returns>
+        </member>
+        <member name="M:PersonnelTrainingAPI.Controllers.TrainingsController.Get">
             <summary>
             Tüm eğitim programlarını listeler.
             </summary>
         </member>
-        <member name="M:PersonnelTrainingApi.Controllers.TrainingsController.Post">
+        <member name="M:PersonnelTrainingAPI.Controllers.TrainingsController.Post">
             <summary>
             Yeni bir eğitim tanımlar.
             </summary>
